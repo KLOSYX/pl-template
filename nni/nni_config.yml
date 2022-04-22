@@ -1,0 +1,19 @@
+experimentName: gaiic2022-visualbert-base-nni
+searchSpaceFile: ./search_space.json
+trialCommand: /root/miniconda3/envs/py38pt111/bin/python3 /data/contest/pytorch-lightning/main.py --use_nni --model_name=bert-base-chinese --tokenizer_name=bert-base-chinese --project_name=gaiic2022-visualbert-base-nni --num_workers=4 --gpus=2 --multi_gpu_strategy=dp --batch_size=128 --wandb --max_epochs=20 --min_epochs=1 --image_token_size=1 --save_top_k=1 --use_pre_trained --focal_loss
+trialConcurrency: 1
+experimentWorkingDirectory: /data/contest/pytorch-lightning/nni/log
+maxTrialNumber: 20
+maxExperimentDuration: 48h
+nniManagerIp: localhost
+tuner:
+  name: TPE
+  classArgs:
+    optimize_mode: maximize
+assessor:
+  name: Curvefitting
+  classArgs:
+    epoch_num: 20
+    threshold: 0.9
+trainingService:
+  platform: local
