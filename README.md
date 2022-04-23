@@ -17,7 +17,7 @@ CUDA_VISIBLE_DEVICES=0,1 python main.py \
 --image_token_size=1 \
 --focal_loss \
 --scheduler=cosine \
---use_pre_trained
+--use_pre_trained \
 --train_file="/workspace/com/jd/xab/data/train_coarse.txt,/workspace/com/jd/xab/data/train_fine.txt.00" \
 --dev_file="/workspace/com/jd/xab/data/train_fine.txt.01"
 ```
