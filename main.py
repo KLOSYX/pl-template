@@ -11,8 +11,8 @@ from pytorch_lightning.loggers import WandbLogger, TensorBoardLogger
 from loader import load_model_path_by_args
 
 
-MODEL_NAME = "video_hw1_cnn"
-DATA_MODULE_NAME = "video_hw1_data"
+MODEL_NAME = "aiwin_bert_classifier"
+DATA_MODULE_NAME = "aiwin_data"
 
 
 def load_model():
