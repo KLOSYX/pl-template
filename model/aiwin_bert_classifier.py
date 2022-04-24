@@ -1,5 +1,6 @@
 from argparse import ArgumentParser
 from pathlib import Path
+from typing import Dict
 
 import pytorch_lightning as pl
 import torch
@@ -93,6 +94,15 @@ class AiwinBertClassifier(pl.LightningModule):
         loss = self.criterion(logits, targets)
         
         preds = torch.argmax(logits, dim=1)
+
+        return {"loss": loss, "preds": preds, "targets": targets}
+    
+    def training_step_end(self, outputs: Dict):
+        preds = outputs['preds']
+        targets = outputs['targets']
+        loss = outputs['loss']
+        if not torch.is_tensor(loss):
+            loss = torch.mean(torch.stack(loss, dim=0))
         self.train_accuracy(preds, targets)
         self.train_auc(preds, targets)
         
@@ -104,7 +114,7 @@ class AiwinBertClassifier(pl.LightningModule):
             on_epoch=True,
             prog_bar=True,
         )
-
+        
         return loss
 
     def training_epoch_end(self, outputs) -> None:
@@ -145,10 +155,21 @@ class AiwinBertClassifier(pl.LightningModule):
         
         preds = torch.argmax(logits, dim=1)
         
+        return {"loss": loss, "preds": preds, "targets": targets}
+    
+    def validation_step_end(self, outputs: Dict):
+        preds = outputs['preds']
+        targets = outputs['targets']
+        loss = outputs['loss']
+        if not torch.is_tensor(loss):
+            loss = torch.mean(torch.stack(loss, dim=0))
         self.val_accuracy(preds, targets)
         self.val_auc(preds, targets)
+        
         self.log_dict(
-            {"val_loss": loss, "val_acc": self.val_accuracy, "val_auc": self.val_auc},
+            {"val_loss": loss,
+            "val_acc": self.val_accuracy, 
+            "val_auc": self.val_auc},
             on_step=False,
             on_epoch=True,
             prog_bar=True,
