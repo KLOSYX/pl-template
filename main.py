@@ -11,8 +11,8 @@ from pytorch_lightning.loggers import WandbLogger, TensorBoardLogger
 from loader import load_model_path_by_args
 
 
-MODEL_NAME = "gaiic_visualbert_classifier"
-DATA_MODULE_NAME = "gaiic_data"
+MODEL_NAME = "video_hw1_cnn"
+DATA_MODULE_NAME = "video_hw1_data"
 
 
 def load_model():
@@ -48,8 +48,8 @@ def load_dm():
 def load_callbacks(args):
     callbacks = [
         plc.ModelCheckpoint(
-            monitor="val_acc",
-            filename="best-{epoch:02d}-{val_loss:.3f}-{val_acc:.4f}",
+            monitor=args.monitor,
+            filename="-".join(["best", "{epoch:02d}", "{val_loss:.4f}", "{" + args.monitor + ":.4f}"]),
             save_top_k=args.save_top_k,
             mode="max",
             save_last=True,
@@ -60,7 +60,7 @@ def load_callbacks(args):
     if not args.no_early_stop:
         callbacks.append(
             plc.EarlyStopping(
-                monitor="val_loss", mode="min", patience=5, min_delta=0.001, verbose=True
+                monitor=args.monitor, mode="min", patience=5, min_delta=0.001, verbose=True
             ),
         )
     return callbacks
@@ -139,7 +139,7 @@ def main(parent_parser):
     # end of training
     if args.use_nni:
         metrics = trainer.validate(model, dm)
-        nni.report_final_result(metrics[0][args.nni_metrics])
+        nni.report_final_result(metrics[0][args.monitor])
         
 
 def get_params():
@@ -169,7 +169,7 @@ def get_params():
     parser.add_argument("--wandb", action="store_true")
     parser.add_argument("--no_early_stop", action="store_true")
     parser.add_argument("--use_nni", action="store_true")
-    parser.add_argument("--nni_metrics", type=str, default="val_acc")
+    parser.add_argument("--monitor", type=str, default="val_acc")
 
     # parser = pl.Trainer.add_argparse_args(parser)
 
