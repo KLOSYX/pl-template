@@ -88,9 +88,7 @@ class AiwinBertClassifier(pl.LightningModule):
         return x
 
     def training_step(self, batch):
-        num_features = batch['nums']
-        text_encodings = batch['text']
-        targets = batch['label']
+        num_features, text_encodings, targets = batch
         logits = self(num_features, text_encodings)
         loss = self.criterion(logits, targets)
         
@@ -141,9 +139,7 @@ class AiwinBertClassifier(pl.LightningModule):
         return [optimizer], [{'scheduler': scheduler, 'interval': 'step'}]
 
     def validation_step(self, batch, batch_idx):
-        num_features = batch['nums']
-        text_encodings = batch['text']
-        targets = batch['label']
+        num_features, text_encodings, targets = batch
         logits = self(num_features, text_encodings)
         loss = self.criterion(logits, targets)
         
@@ -167,7 +163,7 @@ class AiwinBertClassifier(pl.LightningModule):
     def add_model_specific_args(parent_parser):
         parser = ArgumentParser(parents=[parent_parser], add_help=False)
         parser.add_argument("--model_name", type=str,
-                            default="julien-c/bert-xsmall-dummy")
+                            default="prajjwal1/bert-small")
         parser.add_argument("--dropout", type=float, default=0.2)
         parser.add_argument("--focal_loss", action='store_true')
         parser.add_argument("--ft_lr", type=float, default=2e-5)

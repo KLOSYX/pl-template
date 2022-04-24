@@ -31,11 +31,11 @@ class CollectFn(object):
                                                 truncation=True,
                                                 max_length=256,
                                                 padding="max_length",
-                                                return_tensors="pt",).items()}
+                                                return_tensors="pt").items()}
         ret['nums'] = torch.cat(ret['nums'], dim=0)
         if ret.get('label') is not None:
             ret['label'] = torch.cat(ret['label'], dim=0)
-        return ret
+        return ret.get('nums'), ret.get('text'), ret.get('label', None)
 
 class AiwinDataset(Dataset):
     def __init__(self, data_path: str, stage: str = None) -> None:
@@ -126,7 +126,7 @@ class AiwinData(pl.LightningDataModule):
     def add_model_specific_args(parent_parser):
         parser = ArgumentParser(parents=[parent_parser], add_help=False)
         parser.add_argument("--tokenizer_name", type=str,
-                           default='julien-c/bert-xsmall-dummy')
+                           default='prajjwal1/bert-small')
         parser.add_argument("--data_path", type=str, default="data/raw/aiwin/df_data.feather")
         return parser
     
