@@ -27,11 +27,11 @@ class CollectFn(object):
                     ret[k].append(torch.tensor(v, dtype=torch.float).unsqueeze(0))
                 else:
                     ret[k].append(torch.tensor(v, dtype=torch.long).unsqueeze(0))
-        ret['text'] = self.tokenizer(ret['text'],
-                                truncation=True,
-                                max_length=256,
-                                padding="max_length",
-                                return_tensors="pt",)
+        ret['text'] = {k: v for k, v in self.tokenizer(ret['text'],
+                                                truncation=True,
+                                                max_length=256,
+                                                padding="max_length",
+                                                return_tensors="pt",).items()}
         ret['nums'] = torch.cat(ret['nums'], dim=0)
         if ret.get('label') is not None:
             ret['label'] = torch.cat(ret['label'], dim=0)

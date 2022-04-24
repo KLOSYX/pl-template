@@ -64,12 +64,12 @@ class AiwinBertClassifier(pl.LightningModule):
         L = num_features.shape[1]
         # print(num_features.shape)
         num_features = self.num_proj(num_features)  # [N, n * hidden_size]
-        text_features = self.text_embed(text_encodings.input_ids)  # [N, L, hidden_size]
+        text_features = self.text_embed(text_encodings["input_ids"])  # [N, L, hidden_size]
         num_attention_mask = torch.ones((B, L), dtype=torch.float).to(self.device)
         num_token_type_ids = torch.ones((B, L), dtype=torch.long).to(self.device)
         
-        text_attention_mask = text_encodings.attention_mask
-        text_token_type_ids = text_encodings.token_type_ids
+        text_attention_mask = text_encodings["attention_mask"]
+        text_token_type_ids = text_encodings["token_type_ids"]
         attention_mask = torch.cat([num_attention_mask, text_attention_mask], dim=-1)
         token_type_ids = torch.cat([text_token_type_ids, num_token_type_ids], dim=-1)
         joint_features = torch.cat(
