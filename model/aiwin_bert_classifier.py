@@ -102,7 +102,7 @@ class AiwinBertClassifier(pl.LightningModule):
         targets = outputs['targets']
         loss = outputs['loss']
         if not torch.is_tensor(loss):
-            loss = torch.mean(torch.stack(loss, dim=0))
+            loss = torch.mean(torch.stack(loss, dim=0))[0]
         self.train_accuracy(preds, targets)
         self.train_auc(preds, targets)
         
@@ -162,7 +162,7 @@ class AiwinBertClassifier(pl.LightningModule):
         targets = outputs['targets']
         loss = outputs['loss']
         if not torch.is_tensor(loss):
-            loss = torch.mean(torch.stack(loss, dim=0))
+            loss = torch.mean(torch.stack(loss, dim=0))[0]
         self.val_accuracy(preds, targets)
         self.val_auc(preds, targets)
         
