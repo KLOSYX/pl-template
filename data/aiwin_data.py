@@ -12,6 +12,31 @@ import pytorch_lightning as pl
 from torch.utils.data import Dataset, DataLoader, random_split
 
 
+class CollectFn(object):
+    def __init__(self, tokenizer: 'BertTokenizer'):
+        super().__init__()
+        self.tokenizer = tokenizer
+
+    def __call__(self, data: List[Dict]):
+        ret = {k: [] for k in data[0].keys()}
+        for line in data:
+            for k, v in line.items():
+                if k == 'ent_id' or k == 'text':
+                    ret[k].append(v)
+                elif k == 'nums':
+                    ret[k].append(torch.tensor(v, dtype=torch.float).unsqueeze(0))
+                else:
+                    ret[k].append(torch.tensor(v, dtype=torch.long).unsqueeze(0))
+        ret['text'] = self.tokenizer(ret['text'],
+                                truncation=True,
+                                max_length=256,
+                                padding="max_length",
+                                return_tensors="pt",)
+        ret['nums'] = torch.cat(ret['nums'], dim=0)
+        if ret.get('label') is not None:
+            ret['label'] = torch.cat(ret['label'], dim=0)
+        return ret
+
 class AiwinDataset(Dataset):
     def __init__(self, data_path: str, stage: str = None) -> None:
         super().__init__()
@@ -83,19 +108,19 @@ class AiwinData(pl.LightningDataModule):
                           batch_size=self.hparams.batch_size,
                           num_workers=self.hparams.num_workers,
                           shuffle=True,
-                          collate_fn=lambda x : AiwinData._collect_fn(x, self.tokenizer),)
+                          collate_fn=CollectFn(self.tokenizer),)
 
     def val_dataloader(self):
         return DataLoader(self.val_dataset,
                           batch_size=self.hparams.batch_size,
                           num_workers=self.hparams.num_workers,
-                          collate_fn=lambda x : AiwinData._collect_fn(x, self.tokenizer),)
+                          collate_fn=CollectFn(self.tokenizer),)
 
     def test_dataloader(self):
         return DataLoader(self.test_dataset,
                           batch_size=self.hparams.batch_size,
                           num_workers=self.hparams.num_workers,
-                          collate_fn=lambda x : AiwinData._collect_fn(x, self.tokenizer),)
+                          collate_fn=CollectFn(self.tokenizer),)
 
     @staticmethod
     def add_model_specific_args(parent_parser):
